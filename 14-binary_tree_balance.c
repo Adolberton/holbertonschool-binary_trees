@@ -1,39 +1,73 @@
 #include "binary_trees.h"
 
+#ifndef MAX_INT
+#define MAX_INT
 /**
- * max_int - finds larger of txo in values
- * @tree: a pointer to hte root node of the tree to measure the balance factor
- * Return: the measure of the balance
+ * max_int - finds larger of two int values
+ * @a: first value to compare
+ * @b: second value to compare
+ * Return: larger int value, or value of both if equal
  */
-int binary_tree_balance(const binary_tree_t *tree)
+inline int max_int(int a, int b)
 {
-	size_t left_height = 0, right_height = 0;
+	return ((a > b) ? a : b);
+}
+
+#endif
+
+/**
+ * binary_tree_balance_height - measures the height of a binary tree
+ * @tree: root node from which to measure, starting at 1
+ * Return: count of root and levels below, or 0 if `tree` is NULL
+ */
+int binary_tree_balance_height(const binary_tree_t *tree)
+{
 
 	if (!tree)
 		return (0);
+	if (!tree->left && !tree->right)
+		return (1);
+	return (1 + max_int(binary_tree_balance_height(tree->left),
+				binary_tree_balance_height(tree->right)));
 
-	left_height = binary_tree_height(tree->left);
-	right_height = binary_tree_height(tree->right);
-	return (left_height - right_height);
 }
 
 /**
- * binary_tree_height - that measure the height of a binary tree
- * @tree: pointer to the root node of the tree to measure the height
- * Return: 0 if tree is NULL
+ * binary_tree_balance - measures the balance factor of a binary tree
+ * @tree: root node from which to measure
+ * Return: height of `tree` left subtree minus height of right subtree,
+ * or 0 if `tree` is NULL
  */
-
-size_t binary_tree_height(const binary_tree_t *tree)
+int binary_tree_balance(const binary_tree_t *tree)
 {
-	size_t count_l = 0, count_r = 0;
+	int left_h, right_h;
 
-	if (tree == NULL)
+	if (!tree)
 		return (0);
+	left_h = binary_tree_balance_height(tree->left);
+	right_h = binary_tree_balance_height(tree->right);
+	return (left_h - right_h);
+}
 
-	count_l += binary_tree_height(tree->left);
-	count_l += binary_tree_height(tree->right);
+#include "binary_trees.h"
+/**
+ * binary_tree_is_full - checks if a binary tree is full, meaning all nodes
+ * have either 0 or 2 children
+ * @tree: root node below which to check
+ * Return: 1 if `tree` and all nodes below it each have 0 or 2 children, 0 if
+ * not or if `tree` is NULL
+ */
+int binary_tree_is_full(const binary_tree_t *tree)
+{
+	if (!tree)
+		return (0);
+	if (tree->right && tree->left)
+		return (binary_tree_is_full(tree->left) &&
+				binary_tree_is_full(tree->right));
 
-	if (count_l > count_r)
-		return (count_l + 1);
-	return (count_r + 1);
+	else if (tree->right || tree->left)
+		return (0);
+	else
+		return (1);
+
 }
